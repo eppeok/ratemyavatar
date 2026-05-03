@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rate My Roblox Avatar 🎮</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0d0d0d;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 16px;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 2.6rem;
+      background: linear-gradient(90deg, #ff4444, #ff8800, #ffdd00);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    .sub { color: #aaa; margin-bottom: 30px; font-size: 1rem; text-align: center; }
+
+    .upload-box {
+      border: 2px dashed #ff4444;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 480px;
+      padding: 40px 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: background 0.2s;
+      background: #1a1a1a;
+    }
+
+    .upload-box:hover { background: #222; }
+    .upload-box input { display: none; }
+    .upload-box .icon { font-size: 3rem; margin-bottom: 10px; }
+    .upload-box p { color: #ccc; font-size: 0.95rem; }
+
+    #preview-img {
+      display: none;
+      max-width: 220px;
+      border-radius: 12px;
+      margin: 20px auto 0;
+      border: 3px solid #ff4444;
+    }
+
+    #rate-btn {
+      display: none;
+      margin-top: 20px;
+      background: linear-gradient(90deg, #ff4444, #ff8800);
+      color: #fff;
+      border: none;
+      padding: 14px 40px;
+      font-size: 1.2rem;
+      border-radius: 50px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.1s;
+      animation: glow 1.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      from { box-shadow: 0 0 10px #ff4444; }
+      to   { box-shadow: 0 0 25px #ff8800, 0 0 40px #ff4444; }
+    }
+
+    #rate-btn:hover { transform: scale(1.05); }
+    #rate-btn:active { transform: scale(0.97); }
+
+    .loading {
+      display: none;
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    .loading p { color: #ff8800; font-size: 1.1rem; animation: pulse 1s infinite; }
+    .loading .bar-wrap {
+      width: 300px;
+      background: #222;
+      border-radius: 10px;
+      height: 10px;
+      margin: 12px auto 0;
+      overflow: hidden;
+    }
+    .loading .bar {
+      height: 10px;
+      background: linear-gradient(90deg, #ff4444, #ff8800, #ffdd00);
+      border-radius: 10px;
+      animation: load 2.2s ease forwards;
+      width: 0%;
+    }
+
+    @keyframes load { to { width: 100%; } }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+    #result-card {
+      display: none;
+      background: #1a1a1a;
+      border: 2px solid #ff8800;
+      border-radius: 20px;
+      padding: 28px 24px;
+      max-width: 480px;
+      width: 100%;
+      margin-top: 30px;
+      text-align: center;
+      animation: slideUp 0.4s ease;
+    }
+
+    @keyframes slideUp { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
+
+    #result-card h2 { font-size: 1.4rem; color: #ffdd00; margin-bottom: 14px; }
+
+    .rating-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #252525;
+      border-radius: 10px;
+      padding: 10px 16px;
+      margin: 8px 0;
+    }
+
+    .rating-row .label { color: #ccc; font-size: 0.95rem; }
+    .rating-row .score { font-weight: bold; font-size: 1.1rem; color: #ff8800; }
+
+    .bar-row {
+      height: 8px;
+      background: #333;
+      border-radius: 6px;
+      margin: -4px 0 10px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ff4444, #ffdd00);
+      border-radius: 6px;
+      transition: width 1s ease;
+    }
+
+    #roast {
+      margin-top: 18px;
+      background: #111;
+      border-left: 4px solid #ff4444;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: #eee;
+      font-style: italic;
+      font-size: 1rem;
+      text-align: left;
+      line-height: 1.6;
+    }
+
+    #badge {
+      margin-top: 16px;
+      display: inline-block;
+      background: linear-gradient(135deg, #ff4444, #ff8800);
+      padding: 8px 22px;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    #overall { margin-top: 14px; font-size: 2rem; font-weight: bold; background: linear-gradient(90deg,#ff4444,#ffdd00); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+
+    .btn-row { display: flex; gap: 10px; justify-content: center; margin-top: 18px; flex-wrap: wrap; }
+
+    .btn-share {
+      background: #222;
+      border: 2px solid #ff4444;
+      color: #ff4444;
+      padding: 10px 24px;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .btn-share:hover { background: #ff4444; color: #fff; }
+
+    #try-again {
+      background: transparent;
+      border: none;
+      color: #aaa;
+      cursor: pointer;
+      font-size: 0.9rem;
+      text-decoration: underline;
+      margin-top: 14px;
+    }
+
+    .stars { font-size: 1.6rem; margin-bottom: 6px; }
+
+    /* confetti canvas */
+    #confetti-canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .tier-label { font-size: 0.8rem; color: #888; margin-top: 4px; }
+  </style>
+</head>
+<body>
+
+<canvas id="confetti-canvas"></canvas>
+
+<h1>Rate My Roblox Avatar 🎮</h1>
+<p class="sub">Upload your screenshot and get ROASTED 💀🔥</p>
+
+<div class="upload-box" id="upload-box" onclick="document.getElementById('file-input').click()">
+  <div class="icon">📸</div>
+  <p>Click to upload your Roblox avatar screenshot</p>
+  <input type="file" id="file-input" accept="image/*" onchange="handleUpload(event)" />
+</div>
+
+<img id="preview-img" alt="Your avatar" />
+
+<div class="loading" id="loading">
+  <p id="loading-text">Analyzing your drip... ⚡</p>
+  <div class="bar-wrap"><div class="bar" id="loading-bar"></div></div>
+</div>
+
+<button id="rate-btn" onclick="rateAvatar()">RATE MY AVATAR 🔥</button>
+
+<div id="result-card">
+  <h2>🏆 Avatar Report Card</h2>
+  <div class="stars" id="stars"></div>
+
+  <div class="rating-row">
+    <span class="label">👟 Drip Level</span>
+    <span class="score" id="score-drip"></span>
+  </div>
+  <div class="bar-row"><div class="bar-fill" id="bar-drip"></div></div>
+
+  <div class="rating-row">
+    <span class="label">🎨 Color Combo</span>
+    <span class="score" id="score-color"></span>
+  </div>
+  <div class="bar-row"><div class="bar-fill" id="bar-color"></div></div>
+
+  <div class="rating-row">
+    <span class="label">💎 Swag Factor</span>
+    <span class="score" id="score-swag"></span>
+  </div>
+  <div class="bar-row"><div class="bar-fill" id="bar-swag"></div></div>
+
+  <div class="rating-row">
+    <span class="label">🕶️ Fit Check</span>
+    <span class="score" id="score-fit"></span>
+  </div>
+  <div class="bar-row"><div class="bar-fill" id="bar-fit"></div></div>
+
+  <div class="rating-row">
+    <span class="label">⚡ Vibe</span>
+    <span class="score" id="score-vibe"></span>
+  </div>
+
+  <div id="roast"></div>
+  <div id="badge"></div>
+  <div id="overall"></div>
+
+  <div class="btn-row">
+    <button class="btn-share" onclick="shareResult()">📤 Share My Rating</button>
+    <button class="btn-share" onclick="copyResult()">📋 Copy Result</button>
+  </div>
+  <br/>
+  <button id="try-again" onclick="reset()">↩ Try another avatar</button>
+</div>
+
+<script>
+const roasts = [
+  ["Bro walked into the server looking like a discount store mannequin. The fit? Questionable. The confidence? Somehow 11/10. Respect. 💀", 6],
+  ["Okay okay okay... the drip is there but the color combo looks like you let your little sibling pick the outfit. Still, you showed up.", 7],
+  ["This avatar radiates 'I just started playing yesterday' energy but honestly? Kind of iconic. Fresh outta the tutorial zone. 🔥", 5],
+  ["The swag is immaculate. The vibe is unmatched. Whoever built this avatar absolutely cooked. Hall of fame material fr fr. 👑", 9],
+  ["My guy really said 'fashion is overrated' and showed UP. We see you. Different. Bold. Absolutely unhinged. We respect it. 😭", 8],
+  ["This avatar has LAYERS. The accessories alone could carry a whole team. Honestly built different. 💎", 9],
+  ["Sir/ma'am this is a Roblox server not a fever dream. The color choices... the hat... the shoes... Actually kinda fire ngl. 🎨", 7],
+  ["You clearly spent zero Robux on this outfit and somehow still ate. Budget drip is a skill and you have it. 🏆", 6],
+  ["The fit is giving main character energy. The accessories are giving side character who becomes main character. 10/10 arc.", 10],
+  ["I've seen better. I've seen worse. This is somewhere in the middle but the CONFIDENCE carries it to greatness. 💪", 5],
+  ["WAIT. Is that... a coordinated outfit? In THIS economy? You didn't have to go this hard but you did anyway. Legend behavior.", 10],
+  ["The hat alone tells me everything I need to know about you. Bold choice. Chaotic choice. Somehow a W. 🎩", 7],
+  ["No accessories, no problem — this avatar said minimalism is the new drip and honestly they might be right. 🤍", 6],
+  ["This looks like the result of randomly clicking 'randomize' 47 times. And yet... it slaps. Science cannot explain this.", 8],
+  ["The color scheme is screaming but in a good way? Like a firework that also has style. Unexpected. Appreciated. 🎆", 7],
+  ["You woke up and chose violence... fashion violence. The opponent (our eyes) did not survive. W. 😤", 9],
+  ["Mid. But like, stylishly mid. There's a difference. You found it.", 5],
+  ["This avatar passed the vibe check, the fit check, the color check, and somehow the background check too. Clean record. 🧼", 8],
+  ["OK the accessories go hard but I need you to look me in the eyes and explain the pants. Respectfully. 👖", 6],
+  ["You ate and LEFT NO CRUMBS. Every single detail is intentional. This is not a game — except it literally is. 🔥", 10],
+];
+
+const vibes = ["No Cap 🧢", "Based 😤", "Mid 😐", "Lowkey Fire 🔥", "Clean 🧼", "Built Different 💪", "Unmatched 👑", "Slay 💅", "Bussin' 🍔", "Goated 🐐", "On God 🙏", "W Rizz ✨"];
+const loadingLines = ["Scanning your drip... 👀", "Running vibe analysis... ⚡", "Consulting the fashion gods... 🙏", "Checking swag levels... 💎", "Compiling roast material... 💀"];
+
+const badges = [
+  [9.5, "🏆 LEGENDARY DRIP"],
+  [8.5, "👑 TOP TIER FIT"],
+  [7.5, "🔥 CERTIFIED FRESH"],
+  [6.5, "💎 SOLID GRIND"],
+  [5.5, "😐 Mid but Confident"],
+  [0,   "💀 Needs Work fam"],
+];
+
+let uploadedImage = null;
+let lastRating = null;
+
+function handleUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  uploadedImage = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('preview-img');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('rate-btn').style.display = 'inline-block';
+    document.getElementById('result-card').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function rateAvatar() {
+  document.getElementById('rate-btn').style.display = 'none';
+  const loadDiv = document.getElementById('loading');
+  loadDiv.style.display = 'block';
+  document.getElementById('result-card').style.display = 'none';
+
+  let lineIndex = 0;
+  const textEl = document.getElementById('loading-text');
+  const interval = setInterval(() => {
+    lineIndex = (lineIndex + 1) % loadingLines.length;
+    textEl.textContent = loadingLines[lineIndex];
+  }, 500);
+
+  // reset bar animation
+  const bar = document.getElementById('loading-bar');
+  bar.style.animation = 'none';
+  bar.offsetHeight; // reflow
+  bar.style.animation = 'load 2.2s ease forwards';
+
+  setTimeout(() => {
+    clearInterval(interval);
+    loadDiv.style.display = 'none';
+    showResult();
+  }, 2400);
+}
+
+function showResult() {
+  const [roast, base] = roasts[Math.floor(Math.random() * roasts.length)];
+  const r = n => Math.max(1, Math.min(10, n + Math.floor(Math.random() * 3) - 1));
+  const drip  = r(base);
+  const color = r(base - 1);
+  const swag  = r(base);
+  const fit   = r(base + 1);
+  const vibe  = vibes[Math.floor(Math.random() * vibes.length)];
+  const overall = ((drip + color + swag + fit) / 4).toFixed(1);
+  const badge = badges.find(([min]) => overall >= min)[1];
+
+  document.getElementById('score-drip').textContent  = drip + '/10';
+  document.getElementById('score-color').textContent = color + '/10';
+  document.getElementById('score-swag').textContent  = swag + '/10';
+  document.getElementById('score-fit').textContent   = fit + '/10';
+  document.getElementById('score-vibe').textContent  = vibe;
+  document.getElementById('roast').textContent       = '"' + roast + '"';
+  document.getElementById('badge').textContent       = badge;
+  document.getElementById('overall').textContent     = '⭐ Overall: ' + overall + ' / 10';
+  document.getElementById('stars').textContent       = getStars(overall);
+
+  document.getElementById('result-card').style.display = 'block';
+
+  // animate bars after a tick
+  setTimeout(() => {
+    document.getElementById('bar-drip').style.width  = (drip * 10) + '%';
+    document.getElementById('bar-color').style.width = (color * 10) + '%';
+    document.getElementById('bar-swag').style.width  = (swag * 10) + '%';
+    document.getElementById('bar-fit').style.width   = (fit * 10) + '%';
+  }, 100);
+
+  if (overall >= 8) launchConfetti();
+
+  lastRating = { drip, color, swag, fit, vibe, roast, badge, overall };
+}
+
+function getStars(score) {
+  const full = Math.round(score / 2);
+  return '⭐'.repeat(Math.max(0, full)) + '☆'.repeat(Math.max(0, 5 - full));
+}
+
+function buildShareText() {
+  const r = lastRating;
+  return `🎮 My Roblox Avatar got rated ${r.overall}/10!\n${r.badge}\n\n👟 Drip: ${r.drip}/10\n🎨 Colors: ${r.color}/10\n💎 Swag: ${r.swag}/10\n🕶️ Fit: ${r.fit}/10\n⚡ Vibe: ${r.vibe}\n\n"${r.roast}"\n\n🔗 Rate yours → https://eppeok.github.io/rate-my-roblox-avatar/`;
+}
+
+function shareResult() {
+  if (!lastRating) return;
+  if (navigator.share) {
+    navigator.share({ title: 'Rate My Roblox Avatar', text: buildShareText() });
+  } else {
+    copyResult();
+  }
+}
+
+function copyResult() {
+  if (!lastRating) return;
+  navigator.clipboard.writeText(buildShareText()).then(() => {
+    alert('Copied! Paste it to flex on your friends 🔥');
+  });
+}
+
+function reset() {
+  uploadedImage = null;
+  lastRating = null;
+  document.getElementById('preview-img').style.display = 'none';
+  document.getElementById('rate-btn').style.display = 'none';
+  document.getElementById('result-card').style.display = 'none';
+  document.getElementById('file-input').value = '';
+  ['bar-drip','bar-color','bar-swag','bar-fit'].forEach(id => {
+    document.getElementById(id).style.width = '0%';
+  });
+}
+
+// --- Confetti ---
+function launchConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * -canvas.height,
+    r: Math.random() * 8 + 4,
+    d: Math.random() * 4 + 2,
+    color: ['#ff4444','#ff8800','#ffdd00','#ffffff','#44ffaa'][Math.floor(Math.random()*5)],
+    tilt: Math.random() * 10 - 10,
+    tiltAngle: 0,
+    tiltSpeed: Math.random() * 0.1 + 0.05,
+  }));
+  let frame = 0;
+  const MAX = 120;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    pieces.forEach(p => {
+      ctx.beginPath();
+      ctx.lineWidth = p.r / 2;
+      ctx.strokeStyle = p.color;
+      ctx.moveTo(p.x + p.tilt + p.r / 4, p.y);
+      ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 4);
+      ctx.stroke();
+      p.tiltAngle += p.tiltSpeed;
+      p.y += p.d;
+      p.tilt = Math.sin(p.tiltAngle) * 15;
+    });
+    frame++;
+    if (frame < MAX * 6) requestAnimationFrame(draw);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  draw();
+}
+</script>
+</body>
+</html>
